@@ -131,4 +131,10 @@ All mutation endpoints are POST form requests from the local page only
 
 ## Team
 
-K. G. Vishnu Vardhan - Jaswanth P. V. - Manoj Kumar - Naveen - Akash R.
+| Member | Part owned | Module notes |
+|---|---|---|
+| Vishnu ([kgvishnuvardhan22-lab](https://github.com/kgvishnuvardhan22-lab)) | Part 1: Models and build | [Part 1 README](docs/modules/part-1-models-and-build.md) |
+| Jaswanth ([jashu872](https://github.com/jashu872)) | Part 2: Priority queue and dispatch | [Part 2 README](docs/modules/part-2-priority-queue-and-dispatch.md) |
+| Manoj ([manojkumaranna07-svg](https://github.com/manojkumaranna07-svg)) | Part 3: Concurrency tests and console | [Part 3 README](docs/modules/part-3-concurrency-tests-and-console.md) |
+| Naveen ([naveen07-ui](https://github.com/naveen07-ui)) | Part 4: Persistence and MySQL | [Part 4 README](docs/modules/part-4-persistence-and-mysql.md) |
+| Akash ([AkashRamasamy21](https://github.com/AkashRamasamy21)) | Part 5: Web GUI and release | [Part 5 README](docs/modules/part-5-web-gui-and-release.md) |
