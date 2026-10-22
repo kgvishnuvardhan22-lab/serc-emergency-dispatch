@@ -1,0 +1,13 @@
+SERC JAVA WEBSITE + MYSQL
+
+1. Install Java 11+ and MySQL 8.x on your computer.
+2. Follow MYSQL_SETUP.md: import sql/schema.sql once, create your private
+   database user, and copy/edit config/mysql.properties.example.
+3. Run run-mysql.bat (Windows) or ./run-mysql.sh (macOS/Linux).
+4. Wait for Mode: MySQL, then open http://127.0.0.1:8765 in your browser.
+5. Keep the terminal running. Ctrl+C stops the Java web server.
+
+Citizen: report. Dispatcher: assign/start/resolve. Admin: teams/history/CSV.
+The driver is included in lib. Tested against real MySQL 8.0.46.
+For a no-database preview only: java -jar dist/serc.jar (Local file demo).
+No public Java backend is hosted. Simulation only; tabs are NOT secure login.
