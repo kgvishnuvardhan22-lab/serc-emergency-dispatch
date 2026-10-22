@@ -44,4 +44,27 @@ public final class Model {
         public long getSequence(){return sequence;}
         public String toString(){return id+" | "+type+" | severity="+severity+" | "+status+" | "+location+" ("+x+","+y+")";}
     }
+    public static final class MedicalEmergency extends Emergency {
+        private static final long serialVersionUID=1L;
+        MedicalEmergency(String id,int s,double x,double y,String l,String u,LocalDateTime t,long q){super(id,EmergencyType.MEDICAL,s,x,y,l,u,t,q);}
+        public TeamType requiredTeamType(){return TeamType.AMBULANCE;}
+    }
+    public static final class FireEmergency extends Emergency {
+        private static final long serialVersionUID=1L;
+        FireEmergency(String id,int s,double x,double y,String l,String u,LocalDateTime t,long q){super(id,EmergencyType.FIRE,s,x,y,l,u,t,q);}
+        public TeamType requiredTeamType(){return TeamType.FIRE_TRUCK;}
+    }
+    public static final class CrimeEmergency extends Emergency {
+        private static final long serialVersionUID=1L;
+        CrimeEmergency(String id,int s,double x,double y,String l,String u,LocalDateTime t,long q){super(id,EmergencyType.CRIME,s,x,y,l,u,t,q);}
+        public TeamType requiredTeamType(){return TeamType.POLICE;}
+    }
+    public static Emergency emergency(String id,EmergencyType type,int severity,double x,double y,String location,String user,LocalDateTime t,long sequence){
+        switch(type){
+            case MEDICAL:return new MedicalEmergency(id,severity,x,y,location,user,t,sequence);
+            case FIRE:return new FireEmergency(id,severity,x,y,location,user,t,sequence);
+            case CRIME:return new CrimeEmergency(id,severity,x,y,location,user,t,sequence);
+            default:throw new IllegalArgumentException("Unsupported type");
+        }
+    }
 }
