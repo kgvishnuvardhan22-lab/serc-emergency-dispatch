@@ -1,0 +1,30 @@
+Mode: LOCAL FILE DEMO (not MySQL). Use --mysql for JDBC.
+SERC - classroom simulation. Severity 1 is highest. Role selection is NOT authentication.
+
+1 Citizen | 2 Dispatcher | 3 Admin | 0 Exit
+Role: citizen-1 | Demo Citizen
+Citizen ID: 1 Report emergency | 2 View my reports | 0 Back
+Action: Type MEDICAL/FIRE/CRIME: Severity 1?5 (1 highest): X: Y: Location label: Saved report: 78621406-5991-4f56-be60-3f4a8568f769
+
+1 Citizen | 2 Dispatcher | 3 Admin | 0 Exit
+Role: citizen-1 | Demo Citizen
+Citizen ID: 1 Report emergency | 2 View my reports | 0 Back
+Action: Type MEDICAL/FIRE/CRIME: Severity 1?5 (1 highest): X: Y: Location label: Saved report: 3d27baa4-c166-4d48-a46c-2b777833ba68
+
+1 Citizen | 2 Dispatcher | 3 Admin | 0 Exit
+Role: 1 View priority queue | 2 Assign nearest team | 3 Track active responses | 4 Start response | 5 Resolve response | 0 Back
+Action: 3d27baa4-c166-4d48-a46c-2b777833ba68 | MEDICAL | severity=1 | REPORTED | Urgent site (0.0,0.0)
+78621406-5991-4f56-be60-3f4a8568f769 | MEDICAL | severity=4 | REPORTED | Low site (0.0,0.0)
+
+1 Citizen | 2 Dispatcher | 3 Admin | 0 Exit
+Role: 1 View priority queue | 2 Assign nearest team | 3 Track active responses | 4 Start response | 5 Resolve response | 0 Back
+Action: Assigned 3d27baa4-c166-4d48-a46c-2b777833ba68 to AMB-1
+
+1 Citizen | 2 Dispatcher | 3 Admin | 0 Exit
+Role: 1 List teams | 2 Add team | 3 Remove unused team | 4 View history | 5 Generate report | 6 Save backup | 7 Concurrent dispatch demo | 0 Back
+Action: worker-1: Assigned 3773f7f6-3be9-4ce7-818a-6c1462c6d51a to AMB-1
+worker-2: No compatible team available; all reports remain waiting.
+PASS: exactly one assignment and one waiting report. Main records unchanged.
+
+1 Citizen | 2 Dispatcher | 3 Admin | 0 Exit
+Role: 
