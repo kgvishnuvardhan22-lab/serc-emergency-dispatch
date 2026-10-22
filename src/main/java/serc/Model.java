@@ -67,4 +67,17 @@ public final class Model {
             default:throw new IllegalArgumentException("Unsupported type");
         }
     }
+    public static final class ResponseTeam implements Serializable {
+        private static final long serialVersionUID=1L;
+        public final String id;
+        public final TeamType type;
+        private TeamStatus status;
+        private double x,y;
+        public ResponseTeam(String id,TeamType type,double x,double y){this.id=id;this.type=type;this.x=x;this.y=y;this.status=TeamStatus.AVAILABLE;}
+        public TeamStatus getStatus(){return status;}
+        public double getX(){return x;}
+        public double getY(){return y;}
+        void setState(TeamStatus status,double x,double y){this.status=status;this.x=x;this.y=y;}
+        public String toString(){return id+" | "+type+" | "+status+" | ("+x+","+y+")";}
+    }
 }
