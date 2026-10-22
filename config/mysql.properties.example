@@ -1,0 +1,5 @@
+# Copy to mysql.properties and edit on your computer only.
+# Do not submit or share the private mysql.properties file.
+url=jdbc:mysql://127.0.0.1:3306/serc?connectTimeout=5000&socketTimeout=10000
+user=serc_app
+password=REPLACE_WITH_YOUR_LOCAL_DATABASE_PASSWORD
