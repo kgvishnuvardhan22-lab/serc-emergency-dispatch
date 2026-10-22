@@ -91,4 +91,27 @@ public final class Model {
         void setTimes(LocalDateTime start,LocalDateTime end){startedAt=start;resolvedAt=end;}
         public String toString(){return "Incident="+emergencyId+" | team="+teamId+" | assigned="+assignedAt+" | started="+startedAt+" | resolved="+resolvedAt;}
     }
+    public static final class Snapshot implements Serializable {
+        private static final long serialVersionUID=1L;
+        public int formatVersion=1;
+        public LocalDateTime savedAt=LocalDateTime.now();
+        public long nextSequence=1;
+        public final HashMap<String,User> users=new HashMap<>();
+        public final HashMap<String,Emergency> emergencies=new HashMap<>();
+        public final HashMap<String,ResponseTeam> teams=new HashMap<>();
+        public final ArrayList<ResponseHistory> history=new ArrayList<>();
+    }
+    public static Snapshot seed(){
+        Snapshot s=new Snapshot();
+        s.users.put("citizen-1",new User("citizen-1","Demo Citizen",Role.CITIZEN,"fake-contact"));
+        s.users.put("dispatcher-1",new User("dispatcher-1","Demo Dispatcher",Role.DISPATCHER,"fake-contact"));
+        s.users.put("admin-1",new User("admin-1","Demo Admin",Role.ADMIN,"fake-contact"));
+        s.teams.put("AMB-1",new ResponseTeam("AMB-1",TeamType.AMBULANCE,3,4));
+        s.teams.put("AMB-2",new ResponseTeam("AMB-2",TeamType.AMBULANCE,6,8));
+        s.teams.put("FIRE-1",new ResponseTeam("FIRE-1",TeamType.FIRE_TRUCK,2,3));
+        s.teams.put("FIRE-2",new ResponseTeam("FIRE-2",TeamType.FIRE_TRUCK,8,7));
+        s.teams.put("POL-1",new ResponseTeam("POL-1",TeamType.POLICE,0,1));
+        s.teams.put("POL-2",new ResponseTeam("POL-2",TeamType.POLICE,9,9));
+        return s;
+    }
 }
