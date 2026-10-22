@@ -1,0 +1,12 @@
+out/
+target/
+data/
+*.dat
+.env
+.idea/
+*.iml
+
+config/mysql.properties
+data/
+out/
+target/
