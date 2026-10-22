@@ -80,4 +80,15 @@ public final class Model {
         void setState(TeamStatus status,double x,double y){this.status=status;this.x=x;this.y=y;}
         public String toString(){return id+" | "+type+" | "+status+" | ("+x+","+y+")";}
     }
+    public static final class ResponseHistory implements Serializable {
+        private static final long serialVersionUID=1L;
+        public final String id,emergencyId,teamId;
+        public final LocalDateTime assignedAt;
+        private LocalDateTime startedAt,resolvedAt;
+        ResponseHistory(String id,String e,String t,LocalDateTime at){this.id=id;emergencyId=e;teamId=t;assignedAt=at;}
+        public LocalDateTime getStartedAt(){return startedAt;}
+        public LocalDateTime getResolvedAt(){return resolvedAt;}
+        void setTimes(LocalDateTime start,LocalDateTime end){startedAt=start;resolvedAt=end;}
+        public String toString(){return "Incident="+emergencyId+" | team="+teamId+" | assigned="+assignedAt+" | started="+startedAt+" | resolved="+resolvedAt;}
+    }
 }
