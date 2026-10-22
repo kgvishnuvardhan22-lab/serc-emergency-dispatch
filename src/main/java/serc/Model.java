@@ -21,4 +21,27 @@ public final class Model {
             this.id=id; this.name=name; this.role=role; this.contact=contact;
         }
     }
+    public abstract static class Emergency implements Serializable, Dispatchable {
+        private static final long serialVersionUID=1L;
+        public final String id, location, reportedBy;
+        public final EmergencyType type;
+        public final int severity;
+        public final double x,y;
+        public final LocalDateTime reportedAt;
+        public final long sequence;
+        private Status status=Status.REPORTED;
+        private String assignedTeamId;
+        protected Emergency(String id,EmergencyType type,int severity,double x,double y,
+                            String location,String reporter,LocalDateTime time,long sequence) {
+            this.id=id;this.type=type;this.severity=severity;this.x=x;this.y=y;
+            this.location=location;this.reportedBy=reporter;this.reportedAt=time;this.sequence=sequence;
+        }
+        public Status getStatus(){return status;}
+        public String getAssignedTeamId(){return assignedTeamId;}
+        void setState(Status status,String team){this.status=status;this.assignedTeamId=team;}
+        public int getSeverity(){return severity;}
+        public LocalDateTime getReportedAt(){return reportedAt;}
+        public long getSequence(){return sequence;}
+        public String toString(){return id+" | "+type+" | severity="+severity+" | "+status+" | "+location+" ("+x+","+y+")";}
+    }
 }
