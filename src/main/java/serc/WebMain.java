@@ -12,7 +12,10 @@ import serc.Model.*;
 public final class WebMain {
     private static DispatchService service;
     private static String mode;
-    private static final int PORT=8765;
+    private static final int PORT=Integer.parseInt(System.getenv().getOrDefault("PORT","8765"));
+    private static final String BIND=System.getenv().getOrDefault("SERC_BIND","127.0.0.1").trim();
+    private static final String PUBLIC_HOST=System.getenv().getOrDefault("SERC_PUBLIC_HOST","").trim();
+    private static final String DEMO_CODE=System.getenv().getOrDefault("SERC_DEMO_CODE","").trim();
     public static void main(String[] args){
         try{run(args);}catch(Exception e){
             System.err.println("SERC could not start: "+e.getMessage());
@@ -34,18 +37,21 @@ public final class WebMain {
             if(initial.users.isEmpty())throw new IllegalStateException("No users. Start with --mysql --init-demo once.");
             mode=mysql?"MySQL":"Local file demo";
         }
+        String label=System.getenv().getOrDefault("SERC_MODE_LABEL","").trim();
+        if(!label.isEmpty()&&!recovery)mode=label;
         service=new DispatchService(store,initial,backup,recovery);if(!recovery)service.saveBackup();
-        HttpServer server=HttpServer.create(new InetSocketAddress(InetAddress.getByName("127.0.0.1"),PORT),0);
+        HttpServer server=HttpServer.create(new InetSocketAddress(InetAddress.getByName(BIND),PORT),0);
         server.createContext("/",WebMain::handle);
         server.setExecutor(Executors.newFixedThreadPool(4));
         Runtime.getRuntime().addShutdownHook(new Thread(()->{server.stop(0);try{service.saveBackup();store.close();}catch(Exception e){System.err.println("Close: "+e.getMessage());}}));
-        server.start();System.out.println("SERC website: http://127.0.0.1:"+PORT+"\nMode: "+mode+"\nOpen that address in your browser. Keep this terminal open. Ctrl+C stops the server.\nLocal educational simulation only; role selection is not authentication.");
+        server.start();System.out.println("SERC website: http://"+BIND+":"+PORT+"\nMode: "+mode+"\nOpen that address in your browser. Keep this terminal open. Ctrl+C stops the server.\nEducational simulation only; role selection is not authentication.");
     }
     private static String setting(Properties p,String env,String key){String value=System.getenv(env);return value==null?p.getProperty(key):value;}
     private static void handle(HttpExchange x)throws IOException{
         try{
             String host=x.getRequestHeaders().getFirst("Host");
-            if(!("127.0.0.1:"+PORT).equals(host)&&!("localhost:"+PORT).equals(host)){reply(x,403,"application/json","{\"error\":\"Use the local server address.\"}");return;}
+            boolean hostOk=("127.0.0.1:"+PORT).equals(host)||("localhost:"+PORT).equals(host)||(!PUBLIC_HOST.isEmpty()&&PUBLIC_HOST.equals(host));
+            if(!hostOk){reply(x,403,"application/json","{\"error\":\"Use the site address.\"}");return;}
             String path=x.getRequestURI().getPath();
             if(path.equals("/")&&x.getRequestMethod().equals("GET")){
                 try(InputStream in=WebMain.class.getResourceAsStream("/web/index.html")){
@@ -56,10 +62,12 @@ public final class WebMain {
             if(path.equals("/api/state")&&x.getRequestMethod().equals("GET")){reply(x,200,"application/json",state());return;}
             if(!path.startsWith("/api/")||!x.getRequestMethod().equals("POST")){reply(x,404,"application/json","{\"error\":\"Not found\"}");return;}
             String origin=x.getRequestHeaders().getFirst("Origin");
-            if(!("http://127.0.0.1:"+PORT).equals(origin)&&!("http://localhost:"+PORT).equals(origin)){reply(x,403,"application/json","{\"error\":\"Requests must come from this local website.\"}");return;}
+            boolean originOk=("http://127.0.0.1:"+PORT).equals(origin)||("http://localhost:"+PORT).equals(origin)||(!PUBLIC_HOST.isEmpty()&&("https://"+PUBLIC_HOST).equals(origin));
+            if(!originOk){reply(x,403,"application/json","{\"error\":\"Requests must come from this website.\"}");return;}
             String content=x.getRequestHeaders().getFirst("Content-Type");if(content==null||!content.startsWith("application/x-www-form-urlencoded"))throw new IllegalArgumentException("Use a form request.");
             byte[] body=x.getRequestBody().readNBytes(8193);if(body.length>8192)throw new IllegalArgumentException("Request too large");
             Map<String,String> p=parse(new String(body,StandardCharsets.UTF_8));String result;
+            if(!DEMO_CODE.isEmpty()&&!DEMO_CODE.equals(p.getOrDefault("code",""))){reply(x,403,"application/json","{\"error\":\"Wrong or missing demo code. Ask the project owner for it.\"}");return;}
             switch(path){
                 case "/api/report":result="Report saved: "+service.report(EmergencyType.valueOf(required(p,"type")),Integer.parseInt(required(p,"severity")),Double.parseDouble(required(p,"x")),Double.parseDouble(required(p,"y")),required(p,"location"),required(p,"user"));break;
                 case "/api/dispatch":result=service.dispatchNext();break;
@@ -84,7 +92,7 @@ public final class WebMain {
     }
     private static String quote(Object value){if(value==null)return "null";String s=value.toString();StringBuilder b=new StringBuilder("\"");for(char c:s.toCharArray()){switch(c){case '\\':b.append("\\\\");break;case '"':b.append("\\\"");break;case '\n':b.append("\\n");break;case '\r':b.append("\\r");break;case '\t':b.append("\\t");break;default:if(c<32)b.append(String.format("\\u%04x",(int)c));else b.append(c);}}return b.append('"').toString();}
     private static String state(){
-        Snapshot s=service.snapshot();StringBuilder b=new StringBuilder("{\"mode\":").append(quote(mode)).append(",\"warning\":").append(quote(service.warning())).append(",\"savedAt\":").append(quote(s.savedAt));
+        Snapshot s=service.snapshot();StringBuilder b=new StringBuilder("{\"mode\":").append(quote(mode)).append(",\"codeRequired\":").append(!DEMO_CODE.isEmpty()).append(",\"warning\":").append(quote(service.warning())).append(",\"savedAt\":").append(quote(s.savedAt));
         b.append(",\"users\":[");boolean first=true;for(User u:s.users.values())if(u.role==Role.CITIZEN){if(!first)b.append(',');first=false;b.append("{\"id\":").append(quote(u.id)).append(",\"name\":").append(quote(u.name)).append('}');}
         b.append("],\"teams\":[");first=true;List<ResponseTeam> teams=new ArrayList<>(s.teams.values());teams.sort(Comparator.comparing(t->t.id));for(ResponseTeam t:teams){if(!first)b.append(',');first=false;b.append("{\"id\":").append(quote(t.id)).append(",\"type\":").append(quote(t.type)).append(",\"status\":").append(quote(t.getStatus())).append(",\"x\":").append(t.getX()).append(",\"y\":").append(t.getY()).append('}');}
         b.append("],\"emergencies\":[");first=true;List<Emergency> reports=new ArrayList<>(s.emergencies.values());reports.sort(DispatchService.ORDER);for(Emergency e:reports){if(!first)b.append(',');first=false;b.append("{\"id\":").append(quote(e.id)).append(",\"type\":").append(quote(e.type)).append(",\"severity\":").append(e.severity).append(",\"location\":").append(quote(e.location)).append(",\"user\":").append(quote(e.reportedBy)).append(",\"time\":").append(quote(e.reportedAt)).append(",\"status\":").append(quote(e.getStatus())).append(",\"team\":").append(quote(e.getAssignedTeamId())).append(",\"x\":").append(e.x).append(",\"y\":").append(e.y).append('}');}
